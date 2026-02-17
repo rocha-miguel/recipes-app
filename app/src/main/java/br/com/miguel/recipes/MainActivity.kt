@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RecipesTheme {
-
+                InitialScreen()
             }
         }
     }
@@ -181,9 +181,11 @@ fun InitialScreen() {
 }
 
 @Composable
-@Preview(showBackground = true,
+@Preview(
+    showBackground = true,
     showSystemUi = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES)
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 fun InitialScreenPreview() {
     RecipesTheme {
         InitialScreen()
