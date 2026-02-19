@@ -32,11 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.miguel.recipes.ui.theme.RecipesTheme
+import br.com.miguel.recipes.ui.theme.poppinsFamily
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,16 +98,14 @@ fun InitialScreen() {
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "UNLIMITED PREMIUM RECIPES",
-                    fontSize = 16.sp,
+                    text = stringResource(R.string.unlimited_recipes),
                     color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleSmall
+
                 )
                 Text(
-                    text = "Start Cooking",
-                    fontSize = 64.sp,
-                    lineHeight = 64.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = stringResource(R.string.app_title),
+                    style = MaterialTheme.typography.displayLarge,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 16.dp)
@@ -130,10 +130,9 @@ fun InitialScreen() {
 
                     ) {
                         Text(
-                            text = "LOGIN",
+                            text = stringResource(R.string.button_login),
                             color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
 
@@ -153,10 +152,9 @@ fun InitialScreen() {
                     )
                     {
                         Text(
-                            text = "SIGN UP",
+                            text = stringResource(R.string.button_signup),
                             color = MaterialTheme.colorScheme.onTertiary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }

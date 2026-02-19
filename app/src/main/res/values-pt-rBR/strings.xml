@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Receitas</string>
+    <string name="app_title">Comece a cozinhar</string>
+    <string name="unlimited_recipes">RECEITAS PREMIUM ILIMITADAS</string>
+    <string name="button_login">ENTRAR</string>
+    <string name="button_signup">CADASTRAR-SE</string>
+</resources>
