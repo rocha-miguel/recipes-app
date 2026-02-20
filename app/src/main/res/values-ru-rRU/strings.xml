@@ -5,4 +5,20 @@
     <string name="unlimited_recipes">НЕОГРАНИЧЕННОЕ КОЛИЧЕСТВО РЕЦЕПТОВ</string>
     <string name="button_login">ВОЙТИ</string>
     <string name="button_signup">РЕГИСТРАЦИЯ</string>
+    <string name="sign_up">Sign up</string>
+    <string name="create_account">Create a new account</string>
+    <string name="imagem_de_uma_mulher">Imagem de uma mulher</string>
+    <string name="camera_icone">Ícone de câmera</string>
+    <string name="your_name">Your name</string>
+    <string name="person_icon">Person Icon</string>
+    <string name="your_e_mail">Your e-mail</string>
+    <string name="your_password">Your password</string>
+    <string name="icon_email">Icon Email</string>
+    <string name="icon_password">Icon password</string>
+    <string name="eye_icon">Eye Icon</string>
+    <string name="imagem_de_um_homem_cozinhando">Imagem de um homem cozinhando.</string>
+    <string name="login_text">Login</string>
+    <string name="sign_in_text">Please, sign in to continue</string>
+    <string name="sign_in">SIGN IN</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
 </resources>
