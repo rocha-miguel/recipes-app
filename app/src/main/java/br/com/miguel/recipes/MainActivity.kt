@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import br.com.miguel.recipes.screens.HomeScreen
 import br.com.miguel.recipes.screens.InitialScreen
 import br.com.miguel.recipes.screens.LoginScreen
 import br.com.miguel.recipes.screens.SignupScreen
@@ -17,7 +18,8 @@ class MainActivity : ComponentActivity() {
             RecipesTheme {
                 //InitialScreen()
                 //SignupScreen()
-                LoginScreen()
+                //LoginScreen()
+                HomeScreen()
             }
         }
     }

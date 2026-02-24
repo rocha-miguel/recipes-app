@@ -22,4 +22,13 @@
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="hello_miguel">Hello, Miguel!</string>
     <string name="miguel_email_com">miguel@email.com</string>
+    <string name="home">Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="profile">Profile</string>
+    <string name="add_button">Add button</string>
+    <string name="search">search</string>
+    <string name="search_by_recipes">Search by recipes</string>
+    <string name="cooking">Cooking</string>
+    <string name="categories">Categories</string>
+    <string name="newly_added_recipes">Newly added recipes</string>
 </resources>
