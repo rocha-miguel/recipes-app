@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -48,18 +47,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(navController: NavHostController, email: String?) {
     Surface(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
     ) {
         Scaffold(
             topBar = {
-                MyTopAppBar()
+                MyTopAppBar(email!!)
             },
             bottomBar = {
                 MyBottomAppBar()
@@ -91,16 +92,16 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun HomeScreenPreview() {
     RecipesTheme {
-        HomeScreen()
+        HomeScreen(rememberNavController(), "")
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(modifier: Modifier = Modifier) {
+fun MyTopAppBar(email: String) {
 
     TopAppBar(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth(),
         //.height(60.dp),
 
@@ -121,7 +122,7 @@ fun MyTopAppBar(modifier: Modifier = Modifier) {
 
                     )
                     Text(
-                        text = stringResource(R.string.miguel_email_com),
+                        text = email,
                         style = MaterialTheme.typography.displaySmall
                     )
                 }
@@ -155,7 +156,7 @@ fun MyTopAppBar(modifier: Modifier = Modifier) {
 @Composable
 private fun MyTopAppBarPreview() {
     RecipesTheme() {
-        MyTopAppBar()
+        MyTopAppBar("")
     }
 }
 

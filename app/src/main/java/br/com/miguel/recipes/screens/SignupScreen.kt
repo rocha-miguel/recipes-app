@@ -1,7 +1,6 @@
 package br.com.miguel.recipes.screens
 
 import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,13 +21,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,11 +35,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
+import br.com.miguel.recipes.navigation.Destination
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 
 @Composable
-fun SignupScreen(modifier: Modifier = Modifier) {
+fun SignupScreen(navController: NavHostController) {
 
     Box(
         modifier = Modifier
@@ -63,7 +63,7 @@ fun SignupScreen(modifier: Modifier = Modifier) {
             TittleComponent()
             Spacer(modifier = Modifier.height(48.dp))
             UserImage()
-            SignupUserForm()
+            SignupUserForm(navController)
         }
 
         BottomStartCard(modifier = Modifier.align(Alignment.BottomStart))
@@ -78,7 +78,7 @@ fun SignupScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun SignupScreenPreview() {
     RecipesTheme {
-        SignupScreen()
+        SignupScreen(rememberNavController())
     }
 }
 
@@ -160,10 +160,10 @@ private fun UserImagePreview() {
 
 
 @Composable
-fun SignupUserForm(modifier: Modifier = Modifier) {
+fun SignupUserForm(navController: NavHostController) {
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(32.dp)
     ) {
@@ -272,7 +272,9 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = {},
+            onClick = {
+                navController.navigate(Destination.LoginScreen.route)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -297,7 +299,7 @@ fun SignupUserForm(modifier: Modifier = Modifier) {
 @Composable
 private fun SignupUserFormPreview() {
     RecipesTheme {
-        SignupUserForm()
+        SignupUserForm(rememberNavController())
 
     }
 
