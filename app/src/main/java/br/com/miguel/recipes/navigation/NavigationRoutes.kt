@@ -1,11 +1,13 @@
 package br.com.miguel.recipes.navigation
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import br.com.miguel.recipes.screens.HomeScreen
 import br.com.miguel.recipes.screens.InitialScreen
 import br.com.miguel.recipes.screens.LoginScreen
@@ -27,6 +29,12 @@ fun NavigationRoutes() {
         }
 
         composable (Destination.HomeScreen.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://recipes.miguel.com.br/email/{email}"
+                    action = Intent.ACTION_VIEW
+                }
+            ),
             arguments = listOf(navArgument("email") {
             type = NavType.StringType
             })

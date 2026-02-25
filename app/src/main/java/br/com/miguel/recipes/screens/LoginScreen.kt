@@ -88,7 +88,7 @@ private fun LoginScreenPreview() {
 
 
 @Composable
-fun TittleComponentLogin(modifier: Modifier = Modifier) {
+fun TittleComponentLogin() {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start,
