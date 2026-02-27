@@ -11,14 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -31,16 +35,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.navigation.Destination
+import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
+import br.com.miguel.recipes.repository.UserRepository
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 
 @Composable
@@ -138,6 +147,18 @@ fun FormLogin(navController: NavHostController) {
         mutableStateOf("")
     }
 
+    var showPassword by remember {
+        mutableStateOf(false)
+    }
+
+    var authenticateError by remember {
+        mutableStateOf(false)
+    }
+
+    var userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -206,16 +227,30 @@ fun FormLogin(navController: NavHostController) {
             },
 
             trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.RemoveRedEye,
-                    contentDescription = stringResource(R.string.eye_icon),
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
+                val image = if (showPassword) {
+                    Icons.Default.Visibility
+                } else {
+                    Icons.Default.VisibilityOff
+                }
+                IconButton(
+                    onClick = { showPassword = !showPassword }
+                ) {
+                    Icon(
+                        imageVector = image,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                }
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
-            )
+            ),
+            visualTransformation = if (showPassword) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            }
 
         )
 
@@ -223,7 +258,12 @@ fun FormLogin(navController: NavHostController) {
 
         Button(
             onClick = {
-                navController.navigate(Destination.HomeScreen.createRoute(email))
+                val authenticate = userRepository.login(email, password)
+                if (authenticate) {
+                    navController.navigate(Destination.HomeScreen.createRoute(email))
+                } else {
+                    authenticateError = true
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -238,7 +278,28 @@ fun FormLogin(navController: NavHostController) {
             )
         }
 
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (authenticateError) {
+            Row() {
+                Icon(
+                    imageVector = Icons.Default.Error,
+                    contentDescription = "Error",
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Invalid email or password",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
 
         Row(
             modifier = Modifier.fillMaxWidth(),

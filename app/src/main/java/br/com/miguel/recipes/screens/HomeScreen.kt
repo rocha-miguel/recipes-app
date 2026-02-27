@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +58,8 @@ import br.com.miguel.recipes.R
 import br.com.miguel.recipes.components.CategoryItem
 import br.com.miguel.recipes.components.RecipeItem
 import br.com.miguel.recipes.navigation.Destination
+import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
+import br.com.miguel.recipes.repository.UserRepository
 import br.com.miguel.recipes.repository.getAllCategories
 import br.com.miguel.recipes.repository.getAllRecipes
 import br.com.miguel.recipes.ui.theme.RecipesTheme
@@ -89,8 +92,10 @@ fun HomeScreen(navController: NavHostController, email: String?) {
         ) { paddingValues ->
 
 
-            ContentScreen(modifier = Modifier.padding(paddingValues),
-                navController)
+            ContentScreen(
+                modifier = Modifier.padding(paddingValues),
+                navController
+            )
 
 
         }
@@ -110,6 +115,10 @@ private fun HomeScreenPreview() {
 @Composable
 fun MyTopAppBar(email: String) {
 
+    val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+
+    val user = userRepository.getUser()
+
     TopAppBar(
         modifier = Modifier
             .fillMaxWidth(),
@@ -125,7 +134,7 @@ fun MyTopAppBar(email: String) {
             ) {
                 Column() {
                     Text(
-                        text = stringResource(R.string.hello_miguel),
+                        text = "Hello, ${user.name}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
@@ -222,8 +231,10 @@ private fun MyBottomAppBarPreview() {
 }
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier,
-                  navController: NavHostController) {
+fun ContentScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
 
     val categories = getAllCategories()
     val recipes = getAllRecipes()
@@ -303,7 +314,7 @@ fun ContentScreen(modifier: Modifier = Modifier,
         }
 
         Text(
-            modifier = Modifier.padding( vertical = 8.dp ,horizontal = 16.dp),
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
             text = stringResource(R.string.newly_added_recipes),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary
@@ -313,7 +324,7 @@ fun ContentScreen(modifier: Modifier = Modifier,
             contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(recipes) {recipe ->
+            items(recipes) { recipe ->
                 RecipeItem(recipe)
 
             }

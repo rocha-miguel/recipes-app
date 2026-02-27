@@ -1,6 +1,7 @@
 package br.com.miguel.recipes.screens
 
 import android.content.res.Configuration
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,30 +16,42 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
+import br.com.miguel.recipes.model.User
 import br.com.miguel.recipes.navigation.Destination
+import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 
 @Composable
@@ -162,6 +175,41 @@ private fun UserImagePreview() {
 @Composable
 fun SignupUserForm(navController: NavHostController) {
 
+    var name by remember {
+        mutableStateOf("")
+    }
+
+    var email by remember {
+        mutableStateOf("")
+    }
+
+    var password by remember {
+        mutableStateOf("")
+    }
+
+    var isNameError by remember { mutableStateOf(false) }
+    var isEmailError by remember { mutableStateOf(false) }
+    var isPasswordError by remember { mutableStateOf(false) }
+
+    var showDialogError by remember {
+        mutableStateOf(false)
+    }
+
+    var showDialogSuccess by remember {
+        mutableStateOf(false)
+    }
+
+    fun validate(): Boolean {
+        isNameError = name.length < 3
+        isEmailError = email.length < 3 || !Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        isPasswordError = password.length < 3
+        return !isNameError && !isEmailError && !isPasswordError
+    }
+
+
+    var userRepository = SharedPreferencesUserRepository(LocalContext.current)
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,15 +217,17 @@ fun SignupUserForm(navController: NavHostController) {
     ) {
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = name,
+            onValueChange = {
+                name = it
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             label = {
                 Text(
                     text = stringResource(R.string.your_name),
                     style = MaterialTheme.typography.labelSmall,
-                    )
+                )
             },
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults
@@ -185,9 +235,9 @@ fun SignupUserForm(navController: NavHostController) {
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.primary,
 
-                ),
+                    ),
             leadingIcon = {
-                Icon (
+                Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = stringResource(R.string.person_icon),
                     tint = MaterialTheme.colorScheme.tertiary
@@ -196,12 +246,34 @@ fun SignupUserForm(navController: NavHostController) {
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
-            )
+            ),
+            isError = isNameError,
+            trailingIcon = {
+                if (isNameError) {
+                    Icon(
+                        imageVector = Icons.Default.Error,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            supportingText = {
+                if (isNameError) {
+                    Text(
+                        text = "Name is invalid",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
         )
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = email,
+            onValueChange = {
+                email = it
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             label = {
@@ -218,7 +290,7 @@ fun SignupUserForm(navController: NavHostController) {
 
                     ),
             leadingIcon = {
-                Icon (
+                Icon(
                     imageVector = Icons.Default.Mail,
                     contentDescription = stringResource(R.string.icon_email),
                     tint = MaterialTheme.colorScheme.tertiary
@@ -227,12 +299,34 @@ fun SignupUserForm(navController: NavHostController) {
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
-            )
+            ),
+            isError = isEmailError,
+            trailingIcon = {
+                if (isEmailError) {
+                    Icon(
+                        imageVector = Icons.Default.Error,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            supportingText = {
+                if (isEmailError) {
+                    Text(
+                        text = "Email is invalid",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
         )
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = password,
+            onValueChange = {
+                password = it
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             label = {
@@ -249,7 +343,7 @@ fun SignupUserForm(navController: NavHostController) {
 
                     ),
             leadingIcon = {
-                Icon (
+                Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = stringResource(R.string.icon_password),
                     tint = MaterialTheme.colorScheme.tertiary
@@ -260,12 +354,34 @@ fun SignupUserForm(navController: NavHostController) {
                 imeAction = ImeAction.Done
             ),
 
-            trailingIcon = {
+            /*trailingIcon = {
                 Icon (
                     imageVector = Icons.Default.RemoveRedEye,
                     contentDescription = stringResource(R.string.eye_icon),
                     tint = MaterialTheme.colorScheme.tertiary
                 )
+            }
+           ,
+             */
+            isError = isPasswordError,
+            trailingIcon = {
+                if (isPasswordError) {
+                    Icon(
+                        imageVector = Icons.Default.Error,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            supportingText = {
+                if (isPasswordError) {
+                    Text(
+                        text = "Password is invalid",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
             }
         )
 
@@ -273,7 +389,19 @@ fun SignupUserForm(navController: NavHostController) {
 
         Button(
             onClick = {
-                navController.navigate(Destination.LoginScreen.route)
+
+
+                if (validate()) {
+                    userRepository.saveUser(
+                        User(name = name, email = email, password = password)
+                    )
+
+                    showDialogSuccess = true
+
+
+                } else {
+                    showDialogError = true
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -287,6 +415,52 @@ fun SignupUserForm(navController: NavHostController) {
                 style = MaterialTheme.typography.labelMedium
             )
         }
+    }
+
+    if (showDialogSuccess) {
+
+        AlertDialog(
+            onDismissRequest = { showDialogError = false },
+            title = {
+                Text(
+                    text = "Success"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialogSuccess = false
+                    navController.navigate(Destination.LoginScreen.route)
+                }
+                ) {
+                    Text(text = "OK")
+                }
+
+            }
+        )
+
+    }
+
+    if (showDialogError) {
+        AlertDialog(
+            onDismissRequest = { showDialogError = false },
+            title = {
+                Text(
+                    text = "Error"
+                )
+
+            },
+            text = {
+              Text(
+                  text = "Something went wrong"
+              )
+            },
+            confirmButton = {
+                TextButton(onClick = { showDialogError = false }) {
+                    Text(text = "OK")
+                }
+            },
+
+        )
     }
 
 
