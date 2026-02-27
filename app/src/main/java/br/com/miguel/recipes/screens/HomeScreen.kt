@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,6 +54,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
+import br.com.miguel.recipes.components.CategoryItem
+import br.com.miguel.recipes.components.RecipeItem
+import br.com.miguel.recipes.navigation.Destination
+import br.com.miguel.recipes.repository.getAllCategories
+import br.com.miguel.recipes.repository.getAllRecipes
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 
 @Composable
@@ -80,7 +89,8 @@ fun HomeScreen(navController: NavHostController, email: String?) {
         ) { paddingValues ->
 
 
-                ContentScreen(modifier = Modifier.padding(paddingValues))
+            ContentScreen(modifier = Modifier.padding(paddingValues),
+                navController)
 
 
         }
@@ -212,10 +222,15 @@ private fun MyBottomAppBarPreview() {
 }
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier) {
+fun ContentScreen(modifier: Modifier = Modifier,
+                  navController: NavHostController) {
+
+    val categories = getAllCategories()
+    val recipes = getAllRecipes()
+
     Column(
         modifier = modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 0.dp)
             .fillMaxSize()
 
     ) {
@@ -223,7 +238,7 @@ fun ContentScreen(modifier: Modifier = Modifier) {
             value = "",
             onValueChange = {},
             modifier = Modifier
-                .padding(top = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             label = {
                 Text(
@@ -253,7 +268,7 @@ fun ContentScreen(modifier: Modifier = Modifier) {
 
         Card(
             modifier = Modifier
-                .padding(bottom = 16.dp)
+                .padding(vertical = 4.dp, horizontal = 16.dp)
                 .fillMaxWidth()
                 .height(116.dp)
         ) {
@@ -269,22 +284,40 @@ fun ContentScreen(modifier: Modifier = Modifier) {
         }
 
         Text(
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
             text = stringResource(R.string.categories),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(modifier = Modifier.height(116.dp))
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 1.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(categories) { category ->
+                CategoryItem(category, onClick = {
+                    navController.navigate(Destination.CategoryRecipeScreen.createRoute(category.id))
+                })
+
+            }
+        }
 
         Text(
+            modifier = Modifier.padding( vertical = 8.dp ,horizontal = 16.dp),
             text = stringResource(R.string.newly_added_recipes),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary
         )
 
+        LazyColumn(
+            contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(recipes) {recipe ->
+                RecipeItem(recipe)
 
-
-
+            }
+        }
 
 
     }
@@ -296,7 +329,7 @@ fun ContentScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun ContentScreenPreview() {
     RecipesTheme() {
-        ContentScreen()
+        ContentScreen(navController = rememberNavController())
     }
 
 }
