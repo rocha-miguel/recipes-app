@@ -16,11 +16,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.com.miguel.recipes.factory.RetrofitClient
 import br.com.miguel.recipes.model.Category
 import br.com.miguel.recipes.ui.theme.RecipesTheme
+import coil.compose.AsyncImage
 
 
 @Composable
@@ -28,6 +31,8 @@ fun CategoryItem(
     category: Category = Category(),
     onClick: () -> Unit
 ) {
+
+    val baseUrl = RetrofitClient.BASE_URL.plus("recipes")
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,7 +51,7 @@ fun CategoryItem(
             shape = CircleShape,
             colors = CardDefaults
                 .cardColors(
-                    containerColor = category.background
+                    containerColor = Color(category.background.toLong(16))
                 )
 
         ) {
@@ -57,12 +62,21 @@ fun CategoryItem(
                 contentAlignment = Alignment.Center
 
             ) {
-                Image(
+                AsyncImage(
+                    model = baseUrl.plus(category.image),
+                    contentDescription = category.name,
+                    modifier = Modifier.size(45.dp)
+                )
+
+
+
+
+                /* Image(
                     painter = painterResource(category.image!!),
                     contentDescription = category.name,
                     modifier = Modifier
                         .size(45.dp)
-                )
+                ) */
             }
 
         }
