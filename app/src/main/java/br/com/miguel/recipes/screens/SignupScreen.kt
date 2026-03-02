@@ -1,9 +1,20 @@
 package br.com.miguel.recipes.screens
 
 import android.content.res.Configuration
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Patterns
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -21,7 +33,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -37,7 +48,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,11 +64,41 @@ import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.model.User
 import br.com.miguel.recipes.navigation.Destination
+import br.com.miguel.recipes.repository.RoomUserRepository
 import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
 import br.com.miguel.recipes.ui.theme.RecipesTheme
+import br.com.miguel.recipes.utils.convertBitmapToByteArray
 
 @Composable
 fun SignupScreen(navController: NavHostController) {
+
+    val context = LocalContext.current
+
+    val placeholderImage = BitmapFactory
+        .decodeResource(
+            Resources.getSystem(),
+            android.R.drawable.ic_menu_gallery
+        )
+
+    var profileImage by remember {
+        mutableStateOf<Bitmap>(placeholderImage)
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = GetContent()
+    ) { uri ->
+        if (Build.VERSION.SDK_INT < 28) {
+            profileImage = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+        } else {
+            if (uri != null) {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                profileImage = ImageDecoder.decodeBitmap(source)
+            } else {
+                profileImage = placeholderImage
+            }
+
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -75,8 +118,8 @@ fun SignupScreen(navController: NavHostController) {
         ) {
             TittleComponent()
             Spacer(modifier = Modifier.height(48.dp))
-            UserImage()
-            SignupUserForm(navController)
+            UserImage(profileImage, launcher)
+            SignupUserForm(navController, profileImage)
         }
 
         BottomStartCard(modifier = Modifier.align(Alignment.BottomStart))
@@ -135,18 +178,26 @@ private fun TittleComponentPreview() {
 
 
 @Composable
-fun UserImage(modifier: Modifier = Modifier) {
+fun UserImage(profileImage: Bitmap, launcher: ManagedActivityResultLauncher<String, Uri?>) {
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .size(120.dp)
+            .clickable(
+                onClick = {
+                    launcher.launch("image/*")
+                }
+            )
     ) {
         Image(
             modifier = Modifier
                 .size(130.dp)
-                .align(Alignment.Center),
-            painter = painterResource(R.drawable.woman),
-            contentDescription = stringResource(R.string.imagem_de_uma_mulher)
+                .align(Alignment.Center)
+                .clip(shape = CircleShape)
+                .fillMaxSize(),
+            bitmap = profileImage.asImageBitmap(),
+            contentDescription = stringResource(R.string.imagem_de_uma_mulher),
+            contentScale = ContentScale.Crop
         )
         Icon(
             imageVector = Icons.Default.PhotoCamera,
@@ -166,14 +217,14 @@ fun UserImage(modifier: Modifier = Modifier) {
 @Composable
 private fun UserImagePreview() {
     RecipesTheme {
-        UserImage()
+        //UserImage(profileImage, launcher)
 
     }
 }
 
 
 @Composable
-fun SignupUserForm(navController: NavHostController) {
+fun SignupUserForm(navController: NavHostController, profileImage: Bitmap) {
 
     var name by remember {
         mutableStateOf("")
@@ -207,7 +258,8 @@ fun SignupUserForm(navController: NavHostController) {
     }
 
 
-    var userRepository = SharedPreferencesUserRepository(LocalContext.current)
+    //var userRepository = SharedPreferencesUserRepository(LocalContext.current)
+    var userRepository = RoomUserRepository(LocalContext.current)
 
 
     Column(
@@ -393,7 +445,11 @@ fun SignupUserForm(navController: NavHostController) {
 
                 if (validate()) {
                     userRepository.saveUser(
-                        User(name = name, email = email, password = password)
+                        User(name = name,
+                            email = email,
+                            password = password,
+                            userImage = convertBitmapToByteArray(profileImage)
+                        )
                     )
 
                     showDialogSuccess = true
@@ -450,9 +506,9 @@ fun SignupUserForm(navController: NavHostController) {
 
             },
             text = {
-              Text(
-                  text = "Something went wrong"
-              )
+                Text(
+                    text = "Something went wrong"
+                )
             },
             confirmButton = {
                 TextButton(onClick = { showDialogError = false }) {
@@ -460,7 +516,7 @@ fun SignupUserForm(navController: NavHostController) {
                 }
             },
 
-        )
+            )
     }
 
 
@@ -473,7 +529,7 @@ fun SignupUserForm(navController: NavHostController) {
 @Composable
 private fun SignupUserFormPreview() {
     RecipesTheme {
-        SignupUserForm(rememberNavController())
+        //SignupUserForm(rememberNavController(), profileImage)
 
     }
 

@@ -48,6 +48,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.navigation.Destination
+import br.com.miguel.recipes.repository.RoomUserRepository
 import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
 import br.com.miguel.recipes.repository.UserRepository
 import br.com.miguel.recipes.ui.theme.RecipesTheme
@@ -155,7 +156,8 @@ fun FormLogin(navController: NavHostController) {
         mutableStateOf(false)
     }
 
-    var userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+    //var userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
+    var userRepository: UserRepository = RoomUserRepository(LocalContext.current)
 
 
 
