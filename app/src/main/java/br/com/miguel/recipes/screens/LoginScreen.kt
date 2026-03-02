@@ -44,17 +44,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.navigation.Destination
 import br.com.miguel.recipes.repository.RoomUserRepository
-import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
 import br.com.miguel.recipes.repository.UserRepository
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavController) {
 
     Box(
         modifier = Modifier
@@ -138,7 +137,7 @@ private fun TittleComponentLoginPreview() {
 
 
 @Composable
-fun FormLogin(navController: NavHostController) {
+fun FormLogin(navController: NavController) {
 
     var email by remember {
         mutableStateOf("")

@@ -32,4 +32,11 @@
     <string name="cooking">Cooking</string>
     <string name="categories">Categories</string>
     <string name="newly_added_recipes">Newly added recipes</string>
+    <string name="user_profile_details">User profile details</string>
+    <string name="update_profile">Update profile</string>
+    <string name="delete_profile">Delete profile</string>
+    <string name="user_removal">User removal</string>
+    <string name="are_you_sure_you_want_to_delete_your_account">Are you sure you want to delete your account?</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

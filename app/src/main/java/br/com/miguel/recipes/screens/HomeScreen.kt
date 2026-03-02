@@ -3,6 +3,7 @@ package br.com.miguel.recipes.screens
 import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -58,7 +59,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.components.CategoryItem
@@ -72,17 +73,17 @@ import br.com.miguel.recipes.ui.theme.RecipesTheme
 import br.com.miguel.recipes.utils.convertByteArrayToBitmap
 
 @Composable
-fun HomeScreen(navController: NavHostController, email: String?) {
+fun HomeScreen(navController: NavController, email: String?) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
     ) {
         Scaffold(
             topBar = {
-                MyTopAppBar(email!!)
+                MyTopAppBar(email!!, navController)
             },
             bottomBar = {
-                MyBottomAppBar()
+                MyBottomAppBar(navController)
             },
             floatingActionButton = {
                 FloatingActionButton(
@@ -120,7 +121,7 @@ private fun HomeScreenPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(email: String) {
+fun MyTopAppBar(email: String = "", navController: NavController) {
 
     //val userRepository: UserRepository = SharedPreferencesUserRepository(LocalContext.current)
     val userRepository: UserRepository = RoomUserRepository(LocalContext.current)
@@ -132,10 +133,6 @@ fun MyTopAppBar(email: String) {
             convertByteArrayToBitmap(user!!.userImage!!)
         )
     }
-
-
-
-
 
     TopAppBar(
         modifier = Modifier
@@ -165,7 +162,14 @@ fun MyTopAppBar(email: String) {
                 }
 
                 Card(
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable(
+                            onClick = {
+                                navController.navigate(Destination.ProfileScreen.createRoute(email))
+
+                            }
+                        ),
                     shape = CircleShape,
                     colors = CardDefaults
                         .cardColors(
@@ -195,7 +199,7 @@ fun MyTopAppBar(email: String) {
 @Composable
 private fun MyTopAppBarPreview() {
     RecipesTheme() {
-        MyTopAppBar("")
+        MyTopAppBar("", rememberNavController())
     }
 }
 
@@ -206,7 +210,7 @@ data class BottomNavigationItem(
 )
 
 @Composable
-fun MyBottomAppBar(modifier: Modifier = Modifier) {
+fun MyBottomAppBar(navController: NavController) {
     val items = listOf(
         BottomNavigationItem(stringResource(R.string.home), icon = Icons.Default.Home),
         BottomNavigationItem(stringResource(R.string.favorites), icon = Icons.Default.Favorite),
@@ -246,14 +250,14 @@ fun MyBottomAppBar(modifier: Modifier = Modifier) {
 @Composable
 private fun MyBottomAppBarPreview() {
     RecipesTheme() {
-        MyBottomAppBar()
+        MyBottomAppBar(rememberNavController())
     }
 }
 
 @Composable
 fun ContentScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavController
 ) {
 
     val categories = getAllCategories()

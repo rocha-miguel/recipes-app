@@ -1,6 +1,5 @@
 package br.com.miguel.recipes.screens
 
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,6 +10,7 @@ import android.provider.MediaStore
 import android.util.Patterns
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -52,7 +53,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,18 +60,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.miguel.recipes.R
 import br.com.miguel.recipes.model.User
 import br.com.miguel.recipes.navigation.Destination
 import br.com.miguel.recipes.repository.RoomUserRepository
-import br.com.miguel.recipes.repository.SharedPreferencesUserRepository
 import br.com.miguel.recipes.ui.theme.RecipesTheme
 import br.com.miguel.recipes.utils.convertBitmapToByteArray
+import br.com.miguel.recipes.utils.convertByteArrayToBitmap
 
 @Composable
-fun SignupScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, email: String?) {
 
     val context = LocalContext.current
 
@@ -117,31 +116,28 @@ fun SignupScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TittleComponent()
+            ProfileTittleComponent()
             Spacer(modifier = Modifier.height(48.dp))
-            UserImage(profileImage, launcher)
-            SignupUserForm(navController, profileImage)
+            ProfileUserImage(profileImage, launcher, email)
+            ProfileUserForm(navController, profileImage, email)
         }
 
         BottomStartCard(modifier = Modifier.align(Alignment.BottomStart))
     }
 }
 
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    showSystemUi = true
-)
+@Preview
 @Composable
-private fun SignupScreenPreview() {
-    RecipesTheme {
-        SignupScreen(rememberNavController())
+private fun ProfileScreenPreview() {
+    RecipesTheme() {
+        ProfileScreen(navController = rememberNavController(), email = "")
     }
+
 }
 
 
 @Composable
-fun TittleComponent(modifier: Modifier = Modifier) {
+fun ProfileTittleComponent() {
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -149,13 +145,13 @@ fun TittleComponent(modifier: Modifier = Modifier) {
     ) {
 
         Text(
-            text = stringResource(R.string.sign_up),
+            text = stringResource(R.string.profile),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
 
         )
         Text(
-            text = stringResource(R.string.create_account),
+            text = stringResource(R.string.user_profile_details),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleSmall
         )
@@ -165,21 +161,18 @@ fun TittleComponent(modifier: Modifier = Modifier) {
 
 }
 
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
 @Composable
-private fun TittleComponentPreview() {
-    RecipesTheme {
-        TittleComponent()
-    }
+fun ProfileUserImage(
+    profileImage: Bitmap,
+    launcher: ManagedActivityResultLauncher<String, Uri?>,
+    email: String?
+) {
 
-}
+    var userRepository = RoomUserRepository(LocalContext.current)
+
+    var user = userRepository.getUserByEmail(email!!)
 
 
-@Composable
-fun UserImage(profileImage: Bitmap, launcher: ManagedActivityResultLauncher<String, Uri?>) {
 
     Box(
         modifier = Modifier
@@ -211,32 +204,24 @@ fun UserImage(profileImage: Bitmap, launcher: ManagedActivityResultLauncher<Stri
 
 }
 
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
 @Composable
-private fun UserImagePreview() {
-    RecipesTheme {
-        //UserImage(profileImage, launcher)
+fun ProfileUserForm(navController: NavController, profileImage: Bitmap, userEmail: String?) {
 
-    }
-}
+    //var userRepository = SharedPreferencesUserRepository(LocalContext.current)
+    var userRepository = RoomUserRepository(LocalContext.current)
 
-
-@Composable
-fun SignupUserForm(navController: NavController, profileImage: Bitmap) {
+    var user = userRepository.getUserByEmail(userEmail!!)
 
     var name by remember {
-        mutableStateOf("")
+        mutableStateOf(user!!.name)
     }
 
     var email by remember {
-        mutableStateOf("")
+        mutableStateOf(user!!.email)
     }
 
     var password by remember {
-        mutableStateOf("")
+        mutableStateOf(user!!.password)
     }
 
     var isNameError by remember { mutableStateOf(false) }
@@ -258,9 +243,10 @@ fun SignupUserForm(navController: NavController, profileImage: Bitmap) {
         return !isNameError && !isEmailError && !isPasswordError
     }
 
+    var showDeleteDialog by remember {
+        mutableStateOf(false)
+    }
 
-    //var userRepository = SharedPreferencesUserRepository(LocalContext.current)
-    var userRepository = RoomUserRepository(LocalContext.current)
 
 
     Column(
@@ -445,8 +431,10 @@ fun SignupUserForm(navController: NavController, profileImage: Bitmap) {
 
 
                 if (validate()) {
-                    userRepository.saveUser(
-                        User(name = name,
+                    userRepository.updateUser(
+                        User(
+                            id = user!!.id,
+                            name = name,
                             email = email,
                             password = password,
                             userImage = convertBitmapToByteArray(profileImage)
@@ -467,11 +455,67 @@ fun SignupUserForm(navController: NavController, profileImage: Bitmap) {
         )
         {
             Text(
-                text = stringResource(R.string.create_account),
+                text = stringResource(R.string.update_profile),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.labelMedium
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                showDeleteDialog = true
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.delete_profile),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+        }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text(
+                    text = stringResource(R.string.user_removal)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.are_you_sure_you_want_to_delete_your_account)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    if (user != null) {
+                        userRepository.deleteUser(user)
+                        navController.navigate(Destination.LoginScreen.route)
+
+                    }
+                }) {
+                    Text(text = stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+
+                }) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     if (showDialogSuccess) {
@@ -513,25 +557,12 @@ fun SignupUserForm(navController: NavController, profileImage: Bitmap) {
             },
             confirmButton = {
                 TextButton(onClick = { showDialogError = false }) {
-                    Text(text = "OK")
+                    Text(text = stringResource(R.string.ok))
                 }
             },
 
             )
     }
 
-
-}
-
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-private fun SignupUserFormPreview() {
-    RecipesTheme {
-        //SignupUserForm(rememberNavController(), profileImage)
-
-    }
 
 }

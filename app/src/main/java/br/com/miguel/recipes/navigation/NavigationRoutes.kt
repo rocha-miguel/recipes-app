@@ -4,14 +4,15 @@ import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import br.com.miguel.recipes.screens.CategoryRecipeScreen
 import br.com.miguel.recipes.screens.HomeScreen
 import br.com.miguel.recipes.screens.InitialScreen
 import br.com.miguel.recipes.screens.LoginScreen
+import br.com.miguel.recipes.screens.ProfileScreen
 import br.com.miguel.recipes.screens.SignupScreen
 
 @Composable
@@ -22,14 +23,15 @@ fun NavigationRoutes() {
     NavHost(
         navController = navController,
         startDestination = Destination.InitialScreen.route
-    ){
+    ) {
 
         composable(Destination.InitialScreen.route) {
             InitialScreen(navController)
 
         }
 
-        composable (Destination.HomeScreen.route,
+        composable(
+            Destination.HomeScreen.route,
             deepLinks = listOf(
                 navDeepLink {
                     uriPattern = "https://recipes.miguel.com.br/email/{email}"
@@ -37,30 +39,50 @@ fun NavigationRoutes() {
                 }
             ),
             arguments = listOf(navArgument("email") {
-            type = NavType.StringType
+                type = NavType.StringType
             })
-        ){backStackEntry ->
+        ) { backStackEntry ->
             var email = backStackEntry.arguments?.getString("email")
             HomeScreen(navController, email)
         }
-        composable (Destination.SignupScreen.route){
+        composable(
+            Destination.SignupScreen.route
+        ) {
+
             SignupScreen(navController)
         }
-        composable (Destination.LoginScreen.route){
+        composable(Destination.LoginScreen.route) {
             LoginScreen(navController)
         }
 
-        composable (Destination.CategoryRecipeScreen.route, listOf(
-            navArgument("categoryId"){
-                type = NavType.IntType
-            }
-        )){navBackStackEntry ->
+        composable(
+            Destination.CategoryRecipeScreen.route, listOf(
+                navArgument("categoryId") {
+                    type = NavType.IntType
+                }
+            )) { navBackStackEntry ->
             val categoryId = navBackStackEntry.arguments?.getInt("categoryId")
             CategoryRecipeScreen(categoryId)
 
         }
+
+        composable(
+            route = Destination.ProfileScreen.route,
+            arguments = listOf(
+                navArgument(name = "email") {
+                    type = NavType.StringType
+                }
+            )) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            ProfileScreen(navController, email)
+        }
+
     }
-
-
-
 }
+
+
+
+
+
+
+
